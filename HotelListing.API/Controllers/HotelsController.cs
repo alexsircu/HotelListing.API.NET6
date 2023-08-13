@@ -34,8 +34,7 @@ namespace HotelListing.API.Controllers
             {
                 return NotFound();
             }
-            var hotels = await _hotelsRepository.GetAllAsync();
-            var hotelsDto = _mapper.Map<List<GetHotelDto>>(hotels);
+            var hotelsDto = await _hotelsRepository.GetAllAsync<GetHotelDto>();
             return Ok(hotelsDto);
         }
 
@@ -43,19 +42,10 @@ namespace HotelListing.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<HotelDto>> GetHotel(int id)
         {
-            if (_hotelsRepository.IsNull() == true)
-            {
-                return NotFound();
-            }
+            if (_hotelsRepository.IsNull() == true) return NotFound();
+            var hotelDto = await _hotelsRepository.GetDetails<HotelDto>(id);
+            if (hotelDto == null) return NotFound();
 
-            var hotel = await _hotelsRepository.GetDetails(id);
-
-            if (hotel == null)
-            {
-                return NotFound();
-            }
-
-            var hotelDto = _mapper.Map<HotelDto>(hotel);
             return Ok(hotelDto);
         }
 

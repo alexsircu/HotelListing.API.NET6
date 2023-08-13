@@ -11,26 +11,25 @@ using AutoMapper;
 using HotelListing.API.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using HotelListing.API.Exceptions;
-using HotelListing.API.Models;
 
 namespace HotelListing.API.Controllers
 {
     [Route("api/v{version:apiVersion}/countries")]
     [ApiController]
-    [ApiVersion("1.0", Deprecated = true)]
-    public class CountriesController : ControllerBase
+    [ApiVersion("2.0")]
+    public class CountriesV2Controller : ControllerBase
     {
         private readonly IMapper _mapper;
         private readonly ICountriesRepository _countriesRepository;
 
-        public CountriesController(IMapper mapper, ICountriesRepository countriesRepository)
+        public CountriesV2Controller(IMapper mapper, ICountriesRepository countriesRepository)
         {
             _mapper = mapper;
             _countriesRepository = countriesRepository;
         }
 
-        // GET: api/Countries/GetAll
-        [HttpGet("GetAll")]
+        // GET: api/Countries
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<GetCountryDto>>> GetCountries()
         {
             if (_countriesRepository.IsNull() == true)
@@ -42,28 +41,15 @@ namespace HotelListing.API.Controllers
             return Ok(countries);
         }
 
-        // GET: api/Countries?StartIndex=0&PageSize=25&PageNumber=1
-        [HttpGet]
-        public async Task<ActionResult<PagedResult<GetCountryDto>>> GetPagedCountries([FromQuery] QueryParameters queryParameters)
-        {
-            if (_countriesRepository.IsNull() == true)
-            {
-                return NotFound();
-            }
-
-            var pagedCountriesResult = await _countriesRepository.GetAllAsync<GetCountryDto>(queryParameters);
-            return Ok(pagedCountriesResult);
-        }
-
         // GET: api/Countries/5
         [HttpGet("{id}")]
         public async Task<ActionResult<CountryDto>> GetCountry(int id)
         {
             if (_countriesRepository.IsNull() == true) return NotFound();
-            var country = await _countriesRepository.GetDetails<CountryDto>(id);
-            if (country == null) throw new NotFoundException(nameof(GetCountry), id);
+            var countryDto = await _countriesRepository.GetDetails<CountryDto>(id);
+            if (countryDto == null) throw new NotFoundException(nameof(GetCountry), id);
 
-            return Ok(country);
+            return Ok(countryDto);
         }
 
         // PUT: api/Countries/5
